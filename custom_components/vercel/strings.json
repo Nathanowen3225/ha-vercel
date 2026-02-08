@@ -1,0 +1,104 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Connect to Vercel",
+        "description": "Enter your Vercel API token. Create one at https://vercel.com/account/tokens",
+        "data": {
+          "api_token": "API Token"
+        }
+      },
+      "team": {
+        "title": "Select Account",
+        "description": "Choose which Vercel account to monitor.",
+        "data": {
+          "team": "Account"
+        }
+      },
+      "reauth_confirm": {
+        "title": "Re-authenticate with Vercel",
+        "description": "Your Vercel API token has expired or been revoked. Enter a new token.",
+        "data": {
+          "api_token": "API Token"
+        }
+      }
+    },
+    "error": {
+      "invalid_auth": "Invalid API token. Check your token and try again.",
+      "cannot_connect": "Unable to connect to the Vercel API.",
+      "unknown": "An unexpected error occurred."
+    },
+    "abort": {
+      "already_configured": "This account is already configured.",
+      "reauth_successful": "Re-authentication was successful."
+    }
+  },
+  "entity": {
+    "sensor": {
+      "deployment_status": {
+        "name": "Deployment status",
+        "state": {
+          "ready": "Ready",
+          "building": "Building",
+          "error": "Error",
+          "queued": "Queued",
+          "canceled": "Canceled",
+          "initializing": "Initializing"
+        }
+      },
+      "deployment_url": {
+        "name": "Deployment URL"
+      },
+      "build_duration": {
+        "name": "Build duration"
+      },
+      "deployment_source": {
+        "name": "Deployment source",
+        "state": {
+          "git": "Git",
+          "cli": "CLI",
+          "redeploy": "Redeploy",
+          "import": "Import"
+        }
+      },
+      "active_deployments": {
+        "name": "Active deployments"
+      },
+      "failed_deployments_24h": {
+        "name": "Failed deployments (24h)"
+      },
+      "framework": {
+        "name": "Framework"
+      },
+      "node_version": {
+        "name": "Node version"
+      },
+      "domain_count": {
+        "name": "Domains"
+      },
+      "best_practices_score": {
+        "name": "Best practices score"
+      },
+      "best_practices_issues": {
+        "name": "Best practices issues"
+      },
+      "total_projects": {
+        "name": "Total projects"
+      },
+      "total_domains": {
+        "name": "Total domains"
+      }
+    },
+    "binary_sensor": {
+      "domain_healthy": {
+        "name": "Domain healthy"
+      },
+      "ssl_valid": {
+        "name": "SSL valid"
+      },
+      "domain_misconfigured": {
+        "name": "Domain misconfigured"
+      }
+    }
+  }
+}
