@@ -27,8 +27,14 @@ from .entity import VercelAccountEntity, VercelProjectEntity
 class VercelProjectSensorDescription(SensorEntityDescription):
     """Describes a Vercel project sensor."""
 
-    value_fn: Callable[[dict[str, Any], list[dict[str, Any]], list[dict[str, Any]]], StateType]
-    attr_fn: Callable[[dict[str, Any], list[dict[str, Any]], list[dict[str, Any]]], dict[str, Any] | None] = (
+    value_fn: Callable[
+        [dict[str, Any], list[dict[str, Any]], list[dict[str, Any]]],
+        StateType,
+    ]
+    attr_fn: Callable[
+        [dict[str, Any], list[dict[str, Any]], list[dict[str, Any]]],
+        dict[str, Any] | None,
+    ] = (
         lambda p, d, e: None
     )
 
@@ -105,7 +111,11 @@ PROJECT_SENSORS: tuple[VercelProjectSensorDescription, ...] = (
         entity_category=EntityCategory.DIAGNOSTIC,
         value_fn=lambda p, d, e: (
             _latest_deployment(d).get("source", "").lower()
-            if _latest_deployment(d) and _latest_deployment(d).get("source", "").lower() in ("git", "cli", "redeploy", "import")
+            if _latest_deployment(d)
+            and _latest_deployment(d).get(
+                "source", ""
+            ).lower()
+            in ("git", "cli", "redeploy", "import")
             else None
         ),
     ),
@@ -217,10 +227,19 @@ class VercelProjectSensor(VercelProjectEntity, SensorEntity):
         entity_description: VercelProjectSensorDescription,
     ) -> None:
         """Initialize the sensor."""
-        super().__init__(project_coordinator, project_id, project_name, entity_description)
+        super().__init__(
+            project_coordinator,
+            project_id,
+            project_name,
+            entity_description,
+        )
         self._deployment_coordinator = deployment_coordinator
 
-    def _get_data(self) -> tuple[dict[str, Any], list[dict[str, Any]], list[dict[str, Any]]]:
+    def _get_data(
+        self,
+    ) -> tuple[
+        dict[str, Any], list[dict[str, Any]], list[dict[str, Any]]
+    ]:
         """Get project, deployments, and env vars for this project."""
         project = self.coordinator.data["projects"].get(self._project_id, {})
         deployments = self._deployment_coordinator.data.get(self._project_id, [])

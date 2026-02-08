@@ -7,10 +7,7 @@ from unittest.mock import AsyncMock, patch
 
 from homeassistant.config_entries import ConfigEntryState
 from homeassistant.core import HomeAssistant
-
 from pytest_homeassistant_custom_component.common import MockConfigEntry
-
-from custom_components.vercel.const import DOMAIN
 
 
 @contextmanager
@@ -20,7 +17,13 @@ def _mock_api_client():
         client = mock_cls.return_value
         client.async_get_user = AsyncMock(return_value={"id": "user_abc"})
         client.async_get_projects = AsyncMock(return_value=[
-            {"id": "prj_123", "name": "my-app", "framework": "nextjs", "nodeVersion": "20.x", "updatedAt": 1700000000000},
+            {
+                "id": "prj_123",
+                "name": "my-app",
+                "framework": "nextjs",
+                "nodeVersion": "20.x",
+                "updatedAt": 1700000000000,
+            },
         ])
         client.async_get_deployments = AsyncMock(return_value=[
             {
@@ -46,7 +49,9 @@ def _mock_api_client():
         yield mock_cls
 
 
-async def test_setup_entry(hass: HomeAssistant, mock_config_entry: MockConfigEntry) -> None:
+async def test_setup_entry(
+    hass: HomeAssistant, mock_config_entry: MockConfigEntry
+) -> None:
     """Test successful setup of a config entry."""
     mock_config_entry.add_to_hass(hass)
 
@@ -57,7 +62,9 @@ async def test_setup_entry(hass: HomeAssistant, mock_config_entry: MockConfigEnt
     assert mock_config_entry.state is ConfigEntryState.LOADED
 
 
-async def test_unload_entry(hass: HomeAssistant, mock_config_entry: MockConfigEntry) -> None:
+async def test_unload_entry(
+    hass: HomeAssistant, mock_config_entry: MockConfigEntry
+) -> None:
     """Test unloading a config entry."""
     mock_config_entry.add_to_hass(hass)
 

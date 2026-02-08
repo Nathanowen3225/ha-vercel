@@ -34,7 +34,10 @@ DOMAIN_BINARY_SENSORS: tuple[VercelDomainBinarySensorDescription, ...] = (
         key="domain_healthy",
         translation_key="domain_healthy",
         device_class=BinarySensorDeviceClass.CONNECTIVITY,
-        value_fn=lambda d: d.get("verified", False) and d.get("configuredBy") is not None,
+        value_fn=lambda d: (
+            d.get("verified", False)
+            and d.get("configuredBy") is not None
+        ),
     ),
     VercelDomainBinarySensorDescription(
         key="ssl_valid",
@@ -62,7 +65,7 @@ async def async_setup_entry(
 
     entities: list[BinarySensorEntity] = []
 
-    for domain_name, domain_data in project_coord.data.get("domains", {}).items():
+    for domain_name, _domain_data in project_coord.data.get("domains", {}).items():
         for description in DOMAIN_BINARY_SENSORS:
             entities.append(
                 VercelDomainBinarySensor(
@@ -76,7 +79,10 @@ async def async_setup_entry(
     async_add_entities(entities)
 
 
-class VercelDomainBinarySensor(CoordinatorEntity[VercelProjectCoordinator], BinarySensorEntity):
+class VercelDomainBinarySensor(
+    CoordinatorEntity[VercelProjectCoordinator],
+    BinarySensorEntity,
+):
     """Binary sensor for a Vercel domain."""
 
     _attr_attribution = ATTRIBUTION
@@ -107,5 +113,6 @@ class VercelDomainBinarySensor(CoordinatorEntity[VercelProjectCoordinator], Bina
     @property
     def is_on(self) -> bool | None:
         """Return true if the condition is met."""
-        domain_data = self.coordinator.data.get("domains", {}).get(self._domain_name, {})
+        domains = self.coordinator.data.get("domains", {})
+        domain_data = domains.get(self._domain_name, {})
         return self.entity_description.value_fn(domain_data)

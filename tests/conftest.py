@@ -2,14 +2,7 @@
 
 from __future__ import annotations
 
-from collections.abc import Generator
-from unittest.mock import AsyncMock, patch
-
 import pytest
-from aiohttp import ClientSession
-
-from homeassistant.core import HomeAssistant
-
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 
 from custom_components.vercel.const import DOMAIN

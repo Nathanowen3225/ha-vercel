@@ -43,14 +43,16 @@ def audit_project(
     node_version = project.get("nodeVersion", "")
     checks.append((
         node_version in CURRENT_NODE_VERSIONS,
-        f"Node version {node_version!r} is outdated. Upgrade to Node 20+ for LTS support.",
+        f"Node version {node_version!r} is outdated."
+        " Upgrade to Node 20+ for LTS support.",
     ))
 
     # Check 3: Environment variable hygiene (no plaintext secrets)
     plaintext_count = sum(1 for e in env_vars if e.get("type") == "plain")
     checks.append((
         plaintext_count == 0,
-        f"{plaintext_count} environment variable(s) stored as plaintext. Use encrypted or secret type.",
+        f"{plaintext_count} environment variable(s) stored"
+        " as plaintext. Use encrypted or secret type.",
     ))
 
     # Check 4: Deployment error rate
@@ -59,7 +61,9 @@ def audit_project(
         error_rate = error_count / len(deployments)
         checks.append((
             error_rate <= MAX_ERROR_RATE,
-            f"High deployment failure rate: {error_count}/{len(deployments)} recent deployments failed.",
+            f"High deployment failure rate:"
+            f" {error_count}/{len(deployments)}"
+            " recent deployments failed.",
         ))
     else:
         checks.append((
@@ -71,7 +75,8 @@ def audit_project(
     has_rollback = any(d.get("isRollbackCandidate") for d in deployments)
     checks.append((
         has_rollback or len(deployments) == 0,
-        "No rollback candidate available. Ensure successful production deployments exist.",
+        "No rollback candidate available."
+        " Ensure successful production deployments exist.",
     ))
 
     # Check 6: Has recent deployments (not stale) - only fails if zero deployments

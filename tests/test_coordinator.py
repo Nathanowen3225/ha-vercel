@@ -2,27 +2,23 @@
 
 from __future__ import annotations
 
-from datetime import timedelta
-from unittest.mock import AsyncMock, patch
+from unittest.mock import AsyncMock
 
 from homeassistant.config_entries import ConfigEntryState
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import ConfigEntryAuthFailed, ConfigEntryNotReady
-from homeassistant.helpers.update_coordinator import UpdateFailed
+from pytest_homeassistant_custom_component.common import MockConfigEntry
 
 from custom_components.vercel.api import (
     VercelApiClient,
     VercelAuthenticationError,
     VercelConnectionError,
 )
+from custom_components.vercel.const import DOMAIN
 from custom_components.vercel.coordinator import (
     VercelDeploymentCoordinator,
     VercelProjectCoordinator,
 )
-
-from pytest_homeassistant_custom_component.common import MockConfigEntry
-
-from custom_components.vercel.const import DOMAIN
 
 
 def _make_mock_client() -> AsyncMock:
@@ -123,7 +119,7 @@ async def test_project_coordinator_auth_failure(hass: HomeAssistant) -> None:
 
     try:
         await coordinator.async_config_entry_first_refresh()
-        assert False, "Should have raised ConfigEntryAuthFailed"
+        raise AssertionError("Should have raised ConfigEntryAuthFailed")
     except ConfigEntryAuthFailed:
         pass
 
@@ -145,6 +141,6 @@ async def test_project_coordinator_connection_error(hass: HomeAssistant) -> None
 
     try:
         await coordinator.async_config_entry_first_refresh()
-        assert False, "Should have raised ConfigEntryNotReady"
+        raise AssertionError("Should have raised ConfigEntryNotReady")
     except ConfigEntryNotReady:
         pass

@@ -81,7 +81,9 @@ class VercelProjectCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             raise UpdateFailed(f"Error fetching Vercel data: {err}") from err
 
 
-class VercelDeploymentCoordinator(DataUpdateCoordinator[dict[str, list[dict[str, Any]]]]):
+class VercelDeploymentCoordinator(
+    DataUpdateCoordinator[dict[str, list[dict[str, Any]]]],
+):
     """Coordinator for deployments (higher frequency)."""
 
     config_entry: ConfigEntry

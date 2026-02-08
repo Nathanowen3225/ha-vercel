@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from custom_components.vercel.best_practices import audit_project, BestPracticesResult
+from custom_components.vercel.best_practices import audit_project
 
 
 def _make_project(**overrides) -> dict:
@@ -90,7 +90,13 @@ def test_no_rollback_candidate() -> None:
     """Test project with no rollback candidates."""
     project = _make_project()
     deployments = [
-        {"uid": "dpl_1", "state": "READY", "created": 1700000000000, "ready": 1700000060000, "isRollbackCandidate": False},
+        {
+            "uid": "dpl_1",
+            "state": "READY",
+            "created": 1700000000000,
+            "ready": 1700000060000,
+            "isRollbackCandidate": False,
+        },
     ]
     result = audit_project(project, deployments, [])
     assert result.score < 100

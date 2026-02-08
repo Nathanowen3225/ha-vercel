@@ -2,13 +2,13 @@
 
 from __future__ import annotations
 
+import homeassistant.helpers.config_validation as cv
 from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
-import homeassistant.helpers.config_validation as cv
 
 from .api import VercelApiClient
-from .const import CONF_TEAM_ID, DOMAIN, LOGGER
+from .const import CONF_TEAM_ID, DOMAIN
 from .coordinator import VercelDeploymentCoordinator, VercelProjectCoordinator
 from .data import VercelConfigEntry, VercelData
 

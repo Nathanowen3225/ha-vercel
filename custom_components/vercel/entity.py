@@ -26,9 +26,12 @@ class VercelProjectEntity(CoordinatorEntity):
         super().__init__(coordinator)
         self.entity_description = entity_description
         self._project_id = project_id
-        self._attr_unique_id = f"{coordinator.config_entry.entry_id}_{project_id}_{entity_description.key}"
+        entry_id = coordinator.config_entry.entry_id
+        self._attr_unique_id = (
+            f"{entry_id}_{project_id}_{entity_description.key}"
+        )
         self._attr_device_info = DeviceInfo(
-            identifiers={(DOMAIN, f"{coordinator.config_entry.entry_id}_{project_id}")},
+            identifiers={(DOMAIN, f"{entry_id}_{project_id}")},
             name=project_name,
             manufacturer="Vercel",
             model="Project",
@@ -51,7 +54,10 @@ class VercelAccountEntity(CoordinatorEntity):
         """Initialize the entity."""
         super().__init__(coordinator)
         self.entity_description = entity_description
-        self._attr_unique_id = f"{coordinator.config_entry.entry_id}_account_{entity_description.key}"
+        entry_id = coordinator.config_entry.entry_id
+        self._attr_unique_id = (
+            f"{entry_id}_account_{entity_description.key}"
+        )
         self._attr_device_info = DeviceInfo(
             identifiers={(DOMAIN, f"{coordinator.config_entry.entry_id}_account")},
             name=coordinator.config_entry.title,

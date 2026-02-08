@@ -6,10 +6,8 @@ from contextlib import contextmanager
 from unittest.mock import AsyncMock, patch
 
 from homeassistant.core import HomeAssistant
-
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 
-from custom_components.vercel.const import DOMAIN
 from custom_components.vercel.diagnostics import async_get_config_entry_diagnostics
 
 
@@ -19,11 +17,22 @@ def _mock_api_client():
     with patch("custom_components.vercel.VercelApiClient") as mock_cls:
         client = mock_cls.return_value
         client.async_get_projects = AsyncMock(return_value=[
-            {"id": "prj_123", "name": "my-app", "framework": "nextjs", "nodeVersion": "20.x", "updatedAt": 1700000000000},
+            {
+                "id": "prj_123",
+                "name": "my-app",
+                "framework": "nextjs",
+                "nodeVersion": "20.x",
+                "updatedAt": 1700000000000,
+            },
         ])
         client.async_get_deployments = AsyncMock(return_value=[])
         client.async_get_domains = AsyncMock(return_value=[])
-        client.async_get_domain_config = AsyncMock(return_value={"misconfigured": False, "configuredBy": "CNAME"})
+        client.async_get_domain_config = AsyncMock(
+            return_value={
+                "misconfigured": False,
+                "configuredBy": "CNAME",
+            }
+        )
         client.async_get_project_env_vars = AsyncMock(return_value=[])
         yield mock_cls
 
