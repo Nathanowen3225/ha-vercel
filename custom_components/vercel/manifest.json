@@ -1,0 +1,12 @@
+{
+  "domain": "vercel",
+  "name": "Vercel",
+  "codeowners": ["@nathanowen"],
+  "config_flow": true,
+  "documentation": "https://github.com/nathanowen/ha-vercel",
+  "integration_type": "hub",
+  "iot_class": "cloud_polling",
+  "issue_tracker": "https://github.com/nathanowen/ha-vercel/issues",
+  "requirements": [],
+  "version": "0.1.0"
+}
