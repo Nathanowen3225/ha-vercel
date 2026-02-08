@@ -1,0 +1,64 @@
+{
+  "entity": {
+    "sensor": {
+      "deployment_status": {
+        "default": "mdi:rocket-launch",
+        "state": {
+          "ready": "mdi:check-circle",
+          "building": "mdi:hammer-wrench",
+          "error": "mdi:alert-circle",
+          "queued": "mdi:clock-outline",
+          "canceled": "mdi:cancel",
+          "initializing": "mdi:loading"
+        }
+      },
+      "deployment_url": {
+        "default": "mdi:link-variant"
+      },
+      "build_duration": {
+        "default": "mdi:timer-outline"
+      },
+      "deployment_source": {
+        "default": "mdi:source-branch"
+      },
+      "active_deployments": {
+        "default": "mdi:counter"
+      },
+      "failed_deployments_24h": {
+        "default": "mdi:alert-octagon"
+      },
+      "framework": {
+        "default": "mdi:application-brackets-outline"
+      },
+      "node_version": {
+        "default": "mdi:nodejs"
+      },
+      "domain_count": {
+        "default": "mdi:earth"
+      },
+      "best_practices_score": {
+        "default": "mdi:clipboard-check-outline"
+      },
+      "best_practices_issues": {
+        "default": "mdi:clipboard-alert-outline"
+      },
+      "total_projects": {
+        "default": "mdi:folder-multiple"
+      },
+      "total_domains": {
+        "default": "mdi:earth"
+      }
+    },
+    "binary_sensor": {
+      "domain_healthy": {
+        "default": "mdi:heart-pulse"
+      },
+      "ssl_valid": {
+        "default": "mdi:shield-check"
+      },
+      "domain_misconfigured": {
+        "default": "mdi:alert-rhombus"
+      }
+    }
+  }
+}
