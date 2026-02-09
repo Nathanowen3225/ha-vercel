@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import pytest
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
@@ -9,6 +10,7 @@ from custom_components.vercel.api import (
     VercelApiClient,
     VercelAuthenticationError,
     VercelConnectionError,
+    VercelRateLimitError,
 )
 
 
@@ -41,11 +43,8 @@ async def test_get_user_auth_failure(hass: HomeAssistant, aioclient_mock) -> Non
     )
     session = async_get_clientsession(hass)
     client = VercelApiClient(token="bad_token", session=session)
-    try:
+    with pytest.raises(VercelAuthenticationError):
         await client.async_get_user()
-        raise AssertionError("Should have raised VercelAuthenticationError")
-    except VercelAuthenticationError:
-        pass
 
 
 async def test_get_teams(hass: HomeAssistant, aioclient_mock) -> None:
@@ -222,8 +221,18 @@ async def test_connection_error(hass: HomeAssistant, aioclient_mock) -> None:
     aioclient_mock.get("https://api.vercel.com/v2/user", exc=TimeoutError())
     session = async_get_clientsession(hass)
     client = VercelApiClient(token="test_token", session=session)
-    try:
+    with pytest.raises(VercelConnectionError):
         await client.async_get_user()
-        raise AssertionError("Should have raised VercelConnectionError")
-    except VercelConnectionError:
-        pass
+
+
+async def test_rate_limit_error(hass: HomeAssistant, aioclient_mock) -> None:
+    """Test that 429 raises VercelRateLimitError."""
+    aioclient_mock.get(
+        "https://api.vercel.com/v2/user",
+        status=429,
+        headers={"Retry-After": "60"},
+    )
+    session = async_get_clientsession(hass)
+    client = VercelApiClient(token="test_token", session=session)
+    with pytest.raises(VercelRateLimitError):
+        await client.async_get_user()

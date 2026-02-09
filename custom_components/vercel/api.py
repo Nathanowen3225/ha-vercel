@@ -2,11 +2,14 @@
 
 from __future__ import annotations
 
+import logging
 from typing import Any
 
 from aiohttp import ClientError, ClientResponseError, ClientSession
 
 from .const import VERCEL_API_BASE
+
+_LOGGER = logging.getLogger(__name__)
 
 
 class VercelApiError(Exception):
@@ -15,6 +18,10 @@ class VercelApiError(Exception):
 
 class VercelAuthenticationError(VercelApiError):
     """Raised when authentication fails."""
+
+
+class VercelRateLimitError(VercelApiError):
+    """Raised when rate limited by the API."""
 
 
 class VercelConnectionError(VercelApiError):
@@ -62,9 +69,19 @@ class VercelApiClient:
                     raise VercelAuthenticationError(
                         f"Authentication failed: {resp.status}"
                     )
+                if resp.status == 429:
+                    retry_after = resp.headers.get("Retry-After", "unknown")
+                    _LOGGER.warning(
+                        "Vercel API rate limited on %s (retry after %s)",
+                        path,
+                        retry_after,
+                    )
+                    raise VercelRateLimitError(
+                        f"Rate limited on {path}. Retry after {retry_after}s"
+                    )
                 resp.raise_for_status()
                 return await resp.json()
-        except VercelAuthenticationError:
+        except (VercelAuthenticationError, VercelRateLimitError):
             raise
         except ClientResponseError as err:
             raise VercelConnectionError(

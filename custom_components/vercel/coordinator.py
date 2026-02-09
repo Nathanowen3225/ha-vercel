@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import asyncio
 from datetime import timedelta
 from typing import Any
 
@@ -10,7 +11,12 @@ from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import ConfigEntryAuthFailed
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 
-from .api import VercelApiClient, VercelAuthenticationError, VercelConnectionError
+from .api import (
+    VercelApiClient,
+    VercelAuthenticationError,
+    VercelConnectionError,
+    VercelRateLimitError,
+)
 from .const import (
     DEFAULT_DEPLOYMENT_SCAN_INTERVAL,
     DEFAULT_PROJECT_SCAN_INTERVAL,
@@ -51,24 +57,36 @@ class VercelProjectCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             for proj in raw_projects:
                 projects[proj["id"]] = proj
 
-            # Fetch domain configs and index by domain name
-            domains: dict[str, Any] = {}
-            for domain in raw_domains:
+            # Fetch domain configs in parallel
+            async def _fetch_domain(
+                domain: dict[str, Any],
+            ) -> tuple[str, dict[str, Any]]:
                 name = domain["name"]
                 try:
                     config = await self.client.async_get_domain_config(name)
-                except VercelConnectionError:
+                except (VercelConnectionError, VercelRateLimitError):
                     config = {"misconfigured": None, "configuredBy": None}
-                domains[name] = {**domain, **config}
+                return name, {**domain, **config}
 
-            # Fetch env vars per project (for best practices audit)
-            env_vars: dict[str, list[dict[str, Any]]] = {}
-            for project_id in projects:
+            domain_results = await asyncio.gather(
+                *(_fetch_domain(d) for d in raw_domains)
+            )
+            domains = dict(domain_results)
+
+            # Fetch env vars per project in parallel
+            async def _fetch_env_vars(
+                project_id: str,
+            ) -> tuple[str, list[dict[str, Any]]]:
                 try:
                     envs = await self.client.async_get_project_env_vars(project_id)
-                except VercelConnectionError:
+                except (VercelConnectionError, VercelRateLimitError):
                     envs = []
-                env_vars[project_id] = envs
+                return project_id, envs
+
+            env_results = await asyncio.gather(
+                *(_fetch_env_vars(pid) for pid in projects)
+            )
+            env_vars = dict(env_results)
 
             return {
                 "projects": projects,
@@ -77,7 +95,7 @@ class VercelProjectCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             }
         except VercelAuthenticationError as err:
             raise ConfigEntryAuthFailed from err
-        except VercelConnectionError as err:
+        except (VercelConnectionError, VercelRateLimitError) as err:
             raise UpdateFailed(f"Error fetching Vercel data: {err}") from err
 
 
@@ -114,18 +132,22 @@ class VercelDeploymentCoordinator(
             if not project_data:
                 return {}
 
-            result: dict[str, list[dict[str, Any]]] = {}
-            for project_id in project_data["projects"]:
+            async def _fetch_deployments(
+                project_id: str,
+            ) -> tuple[str, list[dict[str, Any]]]:
                 try:
                     deployments = await self.client.async_get_deployments(
                         project_id, limit=5
                     )
-                except VercelConnectionError:
+                except (VercelConnectionError, VercelRateLimitError):
                     deployments = []
-                result[project_id] = deployments
+                return project_id, deployments
 
-            return result
+            results = await asyncio.gather(
+                *(_fetch_deployments(pid) for pid in project_data["projects"])
+            )
+            return dict(results)
         except VercelAuthenticationError as err:
             raise ConfigEntryAuthFailed from err
-        except VercelConnectionError as err:
+        except (VercelConnectionError, VercelRateLimitError) as err:
             raise UpdateFailed(f"Error fetching deployments: {err}") from err

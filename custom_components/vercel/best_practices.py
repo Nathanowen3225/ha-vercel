@@ -55,7 +55,7 @@ def audit_project(
         " as plaintext. Use encrypted or secret type.",
     ))
 
-    # Check 4: Deployment error rate
+    # Check 4: Has deployments and acceptable error rate
     if deployments:
         error_count = sum(1 for d in deployments if d.get("state") == "ERROR")
         error_rate = error_count / len(deployments)
@@ -68,22 +68,17 @@ def audit_project(
     else:
         checks.append((
             False,
-            "No recent deployments found. Project may be stale.",
+            "No deployments found. Deploy your project to get started.",
         ))
 
-    # Check 5: Rollback candidate available
-    has_rollback = any(d.get("isRollbackCandidate") for d in deployments)
-    checks.append((
-        has_rollback or len(deployments) == 0,
-        "No rollback candidate available."
-        " Ensure successful production deployments exist.",
-    ))
-
-    # Check 6: Has recent deployments (not stale) - only fails if zero deployments
-    checks.append((
-        len(deployments) > 0,
-        "No deployments found. Deploy your project to get started.",
-    ))
+    # Check 5: Rollback candidate available (skip if no deployments)
+    if deployments:
+        has_rollback = any(d.get("isRollbackCandidate") for d in deployments)
+        checks.append((
+            has_rollback,
+            "No rollback candidate available."
+            " Ensure successful production deployments exist.",
+        ))
 
     # Calculate score
     passed = sum(1 for ok, _ in checks if ok)

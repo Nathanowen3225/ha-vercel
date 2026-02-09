@@ -14,6 +14,5 @@ VERCEL_API_BASE = "https://api.vercel.com"
 
 DEFAULT_DEPLOYMENT_SCAN_INTERVAL = 60  # seconds
 DEFAULT_PROJECT_SCAN_INTERVAL = 900  # 15 minutes
-DEFAULT_BILLING_SCAN_INTERVAL = 3600  # 1 hour
 
 ATTRIBUTION = "Data provided by Vercel"

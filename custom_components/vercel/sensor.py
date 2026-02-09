@@ -13,11 +13,11 @@ from homeassistant.components.sensor import (
     SensorStateClass,
 )
 from homeassistant.const import EntityCategory, UnitOfTime
-from homeassistant.core import HomeAssistant
+from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.typing import StateType
 
-from .best_practices import audit_project
+from .best_practices import BestPracticesResult, audit_project
 from .coordinator import VercelDeploymentCoordinator, VercelProjectCoordinator
 from .data import VercelConfigEntry
 from .entity import VercelAccountEntity, VercelProjectEntity
@@ -126,8 +126,8 @@ PROJECT_SENSORS: tuple[VercelProjectSensorDescription, ...] = (
         value_fn=lambda p, d, e: len(d),
     ),
     VercelProjectSensorDescription(
-        key="failed_deployments_24h",
-        translation_key="failed_deployments_24h",
+        key="failed_deployments",
+        translation_key="failed_deployments",
         state_class=SensorStateClass.MEASUREMENT,
         value_fn=lambda p, d, e: sum(1 for dep in d if dep.get("state") == "ERROR"),
     ),
@@ -148,15 +148,15 @@ PROJECT_SENSORS: tuple[VercelProjectSensorDescription, ...] = (
         translation_key="best_practices_score",
         state_class=SensorStateClass.MEASUREMENT,
         native_unit_of_measurement="%",
-        value_fn=lambda p, d, e: audit_project(p, d, e).score,
-        attr_fn=lambda p, d, e: {"issues": audit_project(p, d, e).issues},
+        value_fn=lambda p, d, e: None,  # Handled via _cached_audit
+        attr_fn=lambda p, d, e: None,  # Handled via _cached_audit
     ),
     VercelProjectSensorDescription(
         key="best_practices_issues",
         translation_key="best_practices_issues",
         entity_category=EntityCategory.DIAGNOSTIC,
-        value_fn=lambda p, d, e: len(audit_project(p, d, e).issues),
-        attr_fn=lambda p, d, e: {"details": audit_project(p, d, e).issues},
+        value_fn=lambda p, d, e: None,  # Handled via _cached_audit
+        attr_fn=lambda p, d, e: None,  # Handled via _cached_audit
     ),
 )
 
@@ -234,6 +234,22 @@ class VercelProjectSensor(VercelProjectEntity, SensorEntity):
             entity_description,
         )
         self._deployment_coordinator = deployment_coordinator
+        self._cached_audit: BestPracticesResult | None = None
+
+    async def async_added_to_hass(self) -> None:
+        """Subscribe to both coordinators."""
+        await super().async_added_to_hass()
+        self.async_on_remove(
+            self._deployment_coordinator.async_add_listener(
+                self._handle_coordinator_update
+            )
+        )
+
+    @callback
+    def _handle_coordinator_update(self) -> None:
+        """Handle updated data from the deployment coordinator."""
+        self._cached_audit = None
+        self.async_write_ha_state()
 
     def _get_data(
         self,
@@ -246,15 +262,30 @@ class VercelProjectSensor(VercelProjectEntity, SensorEntity):
         env_vars = self.coordinator.data.get("env_vars", {}).get(self._project_id, [])
         return project, deployments, env_vars
 
+    def _get_audit(self) -> BestPracticesResult:
+        """Get cached audit result, computing if needed."""
+        if self._cached_audit is None:
+            project, deployments, env_vars = self._get_data()
+            self._cached_audit = audit_project(project, deployments, env_vars)
+        return self._cached_audit
+
     @property
     def native_value(self) -> StateType:
         """Return the sensor value."""
+        if self.entity_description.key == "best_practices_score":
+            return self._get_audit().score
+        if self.entity_description.key == "best_practices_issues":
+            return len(self._get_audit().issues)
         project, deployments, env_vars = self._get_data()
         return self.entity_description.value_fn(project, deployments, env_vars)
 
     @property
     def extra_state_attributes(self) -> dict[str, Any] | None:
         """Return extra state attributes."""
+        if self.entity_description.key == "best_practices_score":
+            return {"issues": self._get_audit().issues}
+        if self.entity_description.key == "best_practices_issues":
+            return {"details": self._get_audit().issues}
         project, deployments, env_vars = self._get_data()
         return self.entity_description.attr_fn(project, deployments, env_vars)
 

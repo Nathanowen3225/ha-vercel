@@ -24,7 +24,7 @@
       "active_deployments": {
         "default": "mdi:counter"
       },
-      "failed_deployments_24h": {
+      "failed_deployments": {
         "default": "mdi:alert-octagon"
       },
       "framework": {
@@ -32,9 +32,6 @@
       },
       "node_version": {
         "default": "mdi:nodejs"
-      },
-      "domain_count": {
-        "default": "mdi:earth"
       },
       "best_practices_score": {
         "default": "mdi:clipboard-check-outline"

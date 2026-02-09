@@ -7,9 +7,10 @@ from homeassistant.helpers.entity import EntityDescription
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from .const import ATTRIBUTION, DOMAIN
+from .coordinator import VercelProjectCoordinator
 
 
-class VercelProjectEntity(CoordinatorEntity):
+class VercelProjectEntity(CoordinatorEntity[VercelProjectCoordinator]):
     """Base entity for a Vercel project (device)."""
 
     _attr_attribution = ATTRIBUTION
@@ -17,7 +18,7 @@ class VercelProjectEntity(CoordinatorEntity):
 
     def __init__(
         self,
-        coordinator,
+        coordinator: VercelProjectCoordinator,
         project_id: str,
         project_name: str,
         entity_description: EntityDescription,
@@ -40,7 +41,7 @@ class VercelProjectEntity(CoordinatorEntity):
         )
 
 
-class VercelAccountEntity(CoordinatorEntity):
+class VercelAccountEntity(CoordinatorEntity[VercelProjectCoordinator]):
     """Base entity for the Vercel account (device)."""
 
     _attr_attribution = ATTRIBUTION
@@ -48,7 +49,7 @@ class VercelAccountEntity(CoordinatorEntity):
 
     def __init__(
         self,
-        coordinator,
+        coordinator: VercelProjectCoordinator,
         entity_description: EntityDescription,
     ) -> None:
         """Initialize the entity."""

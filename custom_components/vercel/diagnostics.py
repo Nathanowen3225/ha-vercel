@@ -9,7 +9,7 @@ from homeassistant.core import HomeAssistant
 
 from .data import VercelConfigEntry
 
-TO_REDACT = {"api_token", "token", "api_key", "email"}
+TO_REDACT = {"api_token", "token", "api_key", "email", "username", "creator"}
 
 
 async def async_get_config_entry_diagnostics(
@@ -20,6 +20,8 @@ async def async_get_config_entry_diagnostics(
     data = entry.runtime_data
     return {
         "entry_data": async_redact_data(dict(entry.data), TO_REDACT),
-        "project_data": data.project_coordinator.data,
-        "deployment_data": data.deployment_coordinator.data,
+        "project_data": async_redact_data(data.project_coordinator.data, TO_REDACT),
+        "deployment_data": async_redact_data(
+            data.deployment_coordinator.data, TO_REDACT
+        ),
     }

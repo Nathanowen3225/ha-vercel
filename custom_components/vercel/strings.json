@@ -24,13 +24,13 @@
       }
     },
     "error": {
-      "invalid_auth": "Invalid API token. Check your token and try again.",
-      "cannot_connect": "Unable to connect to the Vercel API.",
-      "unknown": "An unexpected error occurred."
+      "invalid_auth": "[%key:common::config_flow::error::invalid_auth%]",
+      "cannot_connect": "[%key:common::config_flow::error::cannot_connect%]",
+      "unknown": "[%key:common::config_flow::error::unknown%]"
     },
     "abort": {
-      "already_configured": "This account is already configured.",
-      "reauth_successful": "Re-authentication was successful."
+      "already_configured": "[%key:common::config_flow::abort::already_configured_account%]",
+      "reauth_successful": "[%key:common::config_flow::abort::reauth_successful%]"
     }
   },
   "entity": {
@@ -64,17 +64,14 @@
       "active_deployments": {
         "name": "Active deployments"
       },
-      "failed_deployments_24h": {
-        "name": "Failed deployments (24h)"
+      "failed_deployments": {
+        "name": "Failed deployments"
       },
       "framework": {
         "name": "Framework"
       },
       "node_version": {
         "name": "Node version"
-      },
-      "domain_count": {
-        "name": "Domains"
       },
       "best_practices_score": {
         "name": "Best practices score"

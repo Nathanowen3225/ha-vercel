@@ -64,17 +64,14 @@
       "active_deployments": {
         "name": "Active deployments"
       },
-      "failed_deployments_24h": {
-        "name": "Failed deployments (24h)"
+      "failed_deployments": {
+        "name": "Failed deployments"
       },
       "framework": {
         "name": "Framework"
       },
       "node_version": {
         "name": "Node version"
-      },
-      "domain_count": {
-        "name": "Domains"
       },
       "best_practices_score": {
         "name": "Best practices score"
