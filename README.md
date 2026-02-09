@@ -101,7 +101,7 @@ Issues are surfaced in the `issues` attribute of the `best_practices_score` sens
 
 ## Screenshots
 
-_Screenshots are welcome! If you would like to contribute screenshots of the integration in action, please open a pull request._
+![Vercel Dashboard in Home Assistant](docs/dashboard.jpg)
 
 ## Development
 
